@@ -1,23 +1,36 @@
 (function(){
   if(Number(document.body.dataset.chapter||0)!==21) return;
   if(document.querySelector('.audit21-core')) return;
+  // 正文已覆盖：内部债权债务/存货/固定资产抵销、所得税、现金流含税抵销。
+  // 下面只补课件考过、正文没点透的规则。
+  const root=document.querySelector('.study-content')||document.body;
+  const txt=root.innerText.replace(/\s+/g,'');
+  const has=(...xs)=>xs.some(x=>txt.includes(x.replace(/\s+/g,'')));
+  const blocks=[];
+  const card=(t,x)=>`<div class="map2-step"><b>${t}</b><span>${x}</span></div>`;
+
+  if(!has('顺流交易','逆流交易')) blocks.push(card('顺流 vs 逆流：先看“谁把货卖给了谁”','未实现内部交易损益，先调减出售方所在公司的净利润。母公司卖给子公司（顺流），全额抵销“归属于母公司所有者的净利润”；子公司卖给母公司（逆流），按母公司持股比例在“归属于母公司所有者的净利润”和“少数股东损益”之间分配抵销；子公司之间买卖，按母公司对出售方子公司的分配比例处理。'));
+  if(!has('少数股东权益可以','出现负数')) blocks.push(card('少数股东权益可以是负数','它是合并报表特有的项目，不要求永远为正；少数股东损益同样只存在于合并报表。逆流交易的未实现损益（扣掉所得税影响后）还要按少数股东持股比例，同时调整这两个项目。'));
+  if(!has('库存股')) blocks.push(card('子公司持有母公司股份＝库存股','从集团整体看，这相当于自己持有自己的股份。子公司账上的长期股权投资，在合并资产负债表中按取得成本转列为库存股，作为所有者权益的减项。'));
+  if(!has('筹资活动')) blocks.push(card('少数股东现金增资，走筹资活动','子公司少数股东以货币资金增加权益性投资，是集团从外部少数股东收到的钱，在合并现金流量表中列入“筹资活动产生的现金流量”，不是投资活动。'));
+
+  if(!blocks.length) return;
   const anchor=document.querySelector('.chapter-map2')||document.querySelector('.decision-lab')||document.querySelector('#why');
   if(!anchor) return;
   const s=document.createElement('section');
-  s.className='audit21-core';
+  s.className='audit21-core'; s.id='audit21';
   s.innerHTML=`
-    <div class="kicker">合并抵销 · 最小规则集</div>
-    <h2>集团不是在“改个表”，而是在删掉自己和自己做的生意</h2>
-    <p>先把母子公司看成一个人：自己不能欠自己，自己卖给自己不能先赚利润。下面只保留课件里最容易漏、又会直接影响做题的规则。</p>
-    <div class="map2-grid">
-      <div class="map2-step"><b>内部债权债务</b><span>期末债权债务按期末余额直接抵销；内部应收款已经计提的坏账准备也要抵。连续年度先把上期影响转到“未分配利润—年初”，本期坏账准备增加再抵信用减值损失，减少则反向处理。债权投资与应付债券抵销出现差额，进合并利润表的投资收益或财务费用。</span></div>
-      <div class="map2-step"><b>内部存货</b><span>先抵内部营业收入/营业成本，再把期末仍留在集团内部的未实现毛利从存货里拿掉。以后真正卖给集团外部，原来未实现的利润才算实现；连续年度先处理期初未实现损益，再处理本期交易。</span></div>
-      <div class="map2-step"><b>内部固定资产 / 无形资产</b><span>内部交易形成的虚增原价先抵掉；以后每期因虚增原价多提的折旧或摊销也要抵。集团视角的资产价值始终按集团真正付给外部的成本继续消耗，清理时也沿着这条逻辑收尾。</span></div>
-      <div class="map2-step"><b>所得税跟着“暂时差异”走</b><span>内部未实现利润被抵掉后，合并口径账面价值与计税基础可能不同，因此确认递延所得税资产；以后内部利润逐步实现、差异转回时，递延所得税也跟着转回。</span></div>
-      <div class="map2-step"><b>顺流 vs 逆流</b><span>未实现内部交易损益调整的是出售方净利润。母公司卖给子公司（顺流），抵销影响归属于母公司所有者的净利润；子公司卖给母公司（逆流），要按持股比例在母公司所有者和少数股东之间分摊，因而会影响少数股东损益和少数股东权益。子公司之间交易按出售方子公司的持股结构判断。</span></div>
-      <div class="map2-step"><b>少数股东权益可以是负数</b><span>少数股东权益是合并报表项目，不要求永远为正；少数股东损益同样只存在于合并报表。逆流交易的未实现损益（扣除所得税影响后）还要按少数股东比例调整这两个项目。</span></div>
-      <div class="map2-step"><b>子公司持有母公司股份</b><span>从集团视角看，相当于集团持有自己的股份。子公司资产负债表里的长期股权投资，在合并资产负债表中应按取得成本转列为库存股，作为所有者权益的减项。</span></div>
-      <div class="map2-step"><b>内部现金流也不能留下</b><span>集团内部收付款在合并现金流量表中抵销，而且按实际现金金额抵：例如内部销售已收款时，增值税也属于集团内部现金流，按含税额抵销。子公司少数股东以现金增资，则是集团从外部少数股东收到资金，列筹资活动现金流。</span></div>
-    </div>`;
+    <div class="kicker">合并抵销 · 课件易漏规则</div>
+    <h2>集团视角下：自己和自己做生意，不算数</h2>
+    <p>正文已经讲完抵销的大框架，下面只补课件里明确考过、正文又没点透的四条规则。</p>
+    <div class="map2-grid">${blocks.join('')}</div>`;
   anchor.insertAdjacentElement('afterend',s);
+  // 桌面 + 移动知识树补链接，保持幂等
+  const label='补漏：合并易漏规则';
+  document.querySelectorAll('.sidebar .tree, .mobile-tree .tree').forEach(tree=>{
+    if(tree.querySelector('a[href="#audit21"]')) return;
+    const li=document.createElement('li'); li.className='root';
+    const a=document.createElement('a'); a.href='#audit21'; a.textContent=label;
+    li.append(a); tree.append(li);
+  });
 })();

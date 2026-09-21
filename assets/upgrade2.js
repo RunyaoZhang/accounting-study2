@@ -18,7 +18,11 @@
  function parseAmt(t){const m=(t||'').replace(/[,，\s]/g,'').match(/-?\d+(?:\.\d+)?/);return m?m[0]:''}
  function normalizeEffect(row){
    const dc=(row.querySelector('.dc')?.textContent||'').trim(); const acct=row.querySelector('.acct'); if(!acct)return null;
-   const name=acct.dataset.word||acct.textContent.trim(); const [kind,db,cr]=kindOf(name); const effect=dc.includes('借')?db:cr; const amount=parseAmt(row.querySelector('.amount')?.textContent||'');
+   const name=acct.dataset.word||acct.textContent.trim();
+   // 优先使用科目元素自带的精确标注（audit 分录带有 data-kind 等），缺失时才回退到按名称推断
+   const [fbKind,fbDb,fbCr]=kindOf(name);
+   const kind=acct.dataset.kind||fbKind, db=acct.dataset.debit||fbDb, cr=acct.dataset.credit||fbCr;
+   const effect=dc.includes('借')?db:cr; const amount=parseAmt(row.querySelector('.amount')?.textContent||'');
    return {dc,name,kind,effect,amount};
  }
  function story(items){

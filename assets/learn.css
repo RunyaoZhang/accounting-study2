@@ -27,5 +27,8 @@ details.source-page{border:1px solid var(--line);border-radius:15px;background:#
 .mastery{float:right;border:1px solid #d8cec1;background:#fff;border-radius:999px;padding:6px 10px;font-size:12px;cursor:pointer}.mastery.done{background:#e9f5ef;border-color:#bcdcca;color:#236148}
 #tip{position:fixed;z-index:9999;display:none;width:min(390px,calc(100vw - 24px));padding:13px 14px;background:#201f1d;color:#fff;border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.25);font-size:14px;line-height:1.55;pointer-events:none}#tip .kind{font-size:11px;font-weight:900;opacity:.68;letter-spacing:.08em;margin-bottom:4px}#tip .word{font-size:16px;font-weight:900;margin-bottom:3px}
 .mobile-tree{display:none}.footer{font-size:13px;color:var(--muted);padding:15px 2px}
+/* audit 补漏区块与知识树锚点：避免被吸顶导航遮住标题 */
+.audit21-core,.audit22-core,.audit23-core,.audit24-core,.audit25-core{scroll-margin-top:64px}
+#audit21,#audit22,#audit23,#audit24,#audit25{scroll-margin-top:64px}
 @media(max-width:980px){.shell{display:block;padding:0 14px 55px}.sidebar{display:none}.mobile-tree{display:block;margin:12px 0}.mobile-tree details{background:#fff;border:1px solid var(--line);border-radius:14px;padding:9px 12px}.topbar{top:0}.main{max-width:900px;margin:auto}}
 @media(max-width:650px){body{font-size:18px}.hero h1{font-size:37px}.hero .lead{font-size:19px}.logic,.section{padding:20px 16px}.logic h2,.section h2{font-size:26px}.logic h3,.section h3{font-size:21px}.compare,.quickgrid{grid-template-columns:1fr}.entry-row{grid-template-columns:36px minmax(0,1fr);}.amount{grid-column:2}.topbar strong{display:none}}

@@ -10,7 +10,7 @@
   if(!has('双功能','双基础','双报告')) blocks.push(card('政府会计的三组“双”','双功能：预算会计 + 财务会计；双基础：预算会计原则上收付实现制，财务会计权责发生制；双报告：决算报告主要来自预算会计，财务报告主要来自财务会计。'));
   if(!has('纳入部门预算管理的现金收支','平行记账')) blocks.push(card('什么时候才要“平行记账”','纳入部门预算管理的现金收支业务，财务会计和预算会计同时核算；不属于这类现金收支的业务通常只做财务会计。预算会计不是把银行存款再记一遍，而是用“资金结存”等预算科目反映预算资金运动。'));
   if(!has('财政直接支付','财政授权支付','零余额账户用款额度')) blocks.push(card('财政支付两条线','财政直接支付通常由财政部门直接向收款人付款；财政授权支付通过单位零余额账户额度支付。年末额度注销、次年恢复时，财务会计与预算会计按各自科目恢复，不能把两套科目混写。'));
-  if(!has('预收账款','事业预算收入','合同完成进度')) blocks.push(card('事业收入：收钱和确认收入可能不是同一天','预收款方式下，收到款时财务会计先确认预收账款，预算会计按实际现金流确认事业预算收入；以后按合同完成进度，财务会计再确认事业收入。'));
+  if(!has('预收账款')) blocks.push(card('事业收入：收钱和确认收入可能不是同一天','预收款方式下，收到款时财务会计先确认预收账款，预算会计按实际现金流确认事业预算收入；以后按合同完成进度，财务会计再确认事业收入。'));
   if(!has('捐赠收入','其他支出','运输费')) blocks.push(card('接受非现金捐赠时，附带现金支出仍可能触发预算会计','受赠设备按凭据/公允价值等规则计入资产并确认捐赠收入；为取得该资产实际支付的运输费等现金支出计入资产成本，预算会计同步确认“其他支出—资金结存”。'));
   if(!has('非财政拨款结转','非财政拨款结余','结转转入')) blocks.push(card('专项资金先“结转”，项目结束后才可能变“结余”','非财政专项资金年末先在“非财政拨款结转”内部归集。项目完成、剩余资金经批准留归单位使用后，才从累计结转转入“非财政拨款结余——结转转入”。'));
   if(!has('专用结余','专用基金','职工福利基金')) blocks.push(card('专用结余 vs 专用基金不是一回事','提取职工福利基金时，预算会计从“非财政拨款结余分配”转入“专用结余”；财务会计同时从“本年盈余分配”转入“专用基金”。一个是预算口径，一个是财务口径。'));
@@ -34,9 +34,16 @@
   </div></div>`);
 
   if(!blocks.length&&!entries.length) return;
-  const anchor=document.querySelector('#why')||document.querySelector('.study-content section');
+  const anchor=document.querySelector('.chapter-map2')||document.querySelector('.decision-lab')||document.querySelector('#why');
   if(!anchor) return;
-  const s=document.createElement('section'); s.className='audit24-core';
+  const s=document.createElement('section'); s.className='audit24-core'; s.id='audit24';
   s.innerHTML=`<div class="kicker">PDF 完整性补漏</div><h2>政府会计最核心：同一笔业务要先判断“财务口径、预算口径，还是两边都记”</h2>${blocks.length?`<div class="map2-grid">${blocks.join('')}</div>`:''}${entries.join('')}`;
   anchor.insertAdjacentElement('afterend',s);
+  const label='补漏：政府会计易漏规则';
+  document.querySelectorAll('.sidebar .tree, .mobile-tree .tree').forEach(tree=>{
+    if(tree.querySelector('a[href="#audit24"]')) return;
+    const li=document.createElement('li'); li.className='root';
+    const a=document.createElement('a'); a.href='#audit24'; a.textContent=label;
+    li.append(a); tree.append(li);
+  });
 })();

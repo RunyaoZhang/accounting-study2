@@ -45,11 +45,20 @@
    panel.innerHTML=`<div class="explain-title">这条分录到底发生了什么</div><div class="entry-effects">${info.map(d=>`<div class="effect-row"><span class="effect-dc ${d.dc.includes('借')?'is-debit':'is-credit'}">${d.dc||'—'}</span><div><b>${d.word}</b><small>${d.kind}</small></div><div class="effect-meaning">${d.effect}${d.amt!==null?` · ${d.amt.toLocaleString()}`:''}</div></div>`).join('')}</div><div class="balance-check ${balanced?'ok':''}">${check}</div><div class="explain-hint">读分录顺序：先认科目大类 → 再把借/贷翻译成增加、减少或结转 → 最后看为什么这个业务需要这种变化。</div>`;
    entry.append(panel);
  }
- document.querySelectorAll('.entry').forEach(entry=>{
+ function addExplainButton(entry){
    const head=entry.querySelector('.entry-head');if(!head||head.querySelector('.entry-explain-btn'))return;
    const btn=document.createElement('button');btn.className='entry-explain-btn';btn.type='button';btn.textContent='解释这条分录';
    btn.addEventListener('click',()=>explainEntry(entry));head.append(btn);
- });
+ }
+ document.querySelectorAll('.entry').forEach(addExplainButton);
+ // audit 脚本在 enhance.js 之后动态注入分录，用 observer 补按钮
+ new MutationObserver(muts=>{
+   muts.forEach(m=>m.addedNodes.forEach(n=>{
+     if(!n||n.nodeType!==1) return;
+     if(n.classList&&n.classList.contains('entry')) addExplainButton(n);
+     if(n.querySelectorAll) n.querySelectorAll('.entry').forEach(addExplainButton);
+   }));
+ }).observe(document.body,{childList:true,subtree:true});
 
  const DECISIONS={
   21:{title:'合并报表：先判断为什么要调整或抵销',intro:'把自己当成“集团”而不是某一家法人公司。先问：这件事对集团整体而言，真的发生了吗？',start:'q1',nodes:{

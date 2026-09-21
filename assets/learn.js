@@ -44,10 +44,10 @@
  document.addEventListener('click',e=>{const el=e.target.closest('.term,.acct');if(el){e.preventDefault();const r=el.getBoundingClientRect();show(el,r.left,r.bottom)} else if(!e.target.closest('#tip')) hide()});
  const glossary=window.TERM_GLOSSARY||{};
  const terms=Object.keys(glossary).sort((a,b)=>b.length-a.length);
- if(terms.length){
+ function highlightTerms(scope){
+   if(!terms.length||!scope) return;
    const esc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), re=new RegExp(terms.map(esc).join('|'),'g');
-   const root=document.querySelector('.study-content');
-   const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(n){
+   const walker=document.createTreeWalker(scope,NodeFilter.SHOW_TEXT,{acceptNode(n){
      if(!n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
      if(n.parentElement.closest('.term,.acct,.entry,.sidebar,script,style')) return NodeFilter.FILTER_REJECT;
      re.lastIndex=0; return re.test(n.nodeValue)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;
@@ -58,5 +58,13 @@
      if(last<n.nodeValue.length)frag.append(n.nodeValue.slice(last));n.replaceWith(frag);
    });
  }
+ highlightTerms(document.querySelector('.study-content'));
+ // audit 脚本在 learn.js 之后动态注入内容，用 observer 补术语高亮
+ new MutationObserver(muts=>{
+   muts.forEach(m=>m.addedNodes.forEach(n=>{
+     if(!n||n.nodeType!==1||!n.querySelectorAll) return;
+     if(n.classList&&(n.classList.contains('audit21-core')||n.classList.contains('audit22-core')||n.classList.contains('audit23-core')||n.classList.contains('audit24-core')||n.classList.contains('audit25-core'))) highlightTerms(n);
+   }));
+ }).observe(document.body,{childList:true,subtree:true});
  document.querySelectorAll('.mastery').forEach((b,i)=>{const key=`acct_learn_${ch}_${b.dataset.key||i}`;if(localStorage.getItem(key)==='1'){b.classList.add('done');b.textContent='✓ 已掌握'}b.addEventListener('click',()=>{const d=b.classList.toggle('done');localStorage.setItem(key,d?'1':'0');b.textContent=d?'✓ 已掌握':'标记已掌握'})});
 })();
