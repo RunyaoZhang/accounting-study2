@@ -45,7 +45,10 @@
    const box=document.createElement('div');box.className='entry-story';box.innerHTML='<b>整条分录翻成大白话</b><p>'+story(items)+'</p>';
    panel.querySelector('.balance-check')?.before(box);
  }
- document.addEventListener('click',e=>{if(e.target.closest('.entry-explain-btn'))setTimeout(()=>upgradeEntry(e.target.closest('.entry')),0)});
+ // 分录解释面板现在默认直接展示：面板建好就升级，不再等按钮点击
+ function upgradeAll(){document.querySelectorAll('.entry').forEach(upgradeEntry)}
+ upgradeAll();
+ new MutationObserver(()=>upgradeAll()).observe(document.body,{childList:true,subtree:true});
 
  const MAPS={
   21:{title:'先判“合并是什么”，再做“合并报表怎么抵”',steps:[['① 有没有形成控制？','没有形成控制，就先别套企业合并里的控股合并逻辑。形成控制后再进入同一控制/非同一控制判断。'],['② 是否受同一最终控制方控制且不是暂时性的？','是：同一控制下企业合并，强调账面价值和原有商誉延续；否：非同一控制下企业合并，进入购买法、公允价值和新商誉逻辑。'],['③ 是控股合并还是吸收合并？','控股合并：被合并方仍是独立法人，后面需要合并财务报表；吸收合并：资产负债直接进入合并方本身。'],['④ 到合并报表，再把集团当成“一个人”','先统一口径/做购买日调整，再抵投资与权益、内部债权债务、内部收入成本、未实现内部损益等。']]},

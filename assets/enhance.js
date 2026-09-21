@@ -2,6 +2,9 @@
  const ch=Number(document.body.dataset.chapter||0);
  if(![21,22,23,24,25].includes(ch))return;
 
+ // 除了自测题，不把信息藏在点击之后：课件分录默认全部展开
+ document.querySelectorAll('details.source-page').forEach(d=>{d.open=true});
+
  function classifyAccount(name){
    const n=name||'';
    if(['累计折旧','累计摊销','坏账准备','减值准备','存货跌价准备'].some(x=>n.includes(x))) return ['资产类备抵科目','减少备抵＝相关资产净额增加','增加备抵＝相关资产净额减少'];
@@ -21,9 +24,8 @@
    const m=(text||'').replace(/[,\s，]/g,'').replace(/[()（）]/g,'').match(/-?\d+(?:\.\d+)?/);
    return m?Number(m[0]):null;
  }
- function explainEntry(entry){
-   let panel=entry.querySelector('.entry-explain');
-   if(panel){panel.hidden=!panel.hidden;return}
+ function buildExplainPanel(entry){
+   if(entry.querySelector('.entry-explain'))return;
    const rows=[...entry.querySelectorAll('.entry-row')];
    if(!rows.length)return;
    let debitTotal=0,creditTotal=0,numericRows=0,amountRows=0;
@@ -45,18 +47,14 @@
    panel.innerHTML=`<div class="explain-title">这条分录到底发生了什么</div><div class="entry-effects">${info.map(d=>`<div class="effect-row"><span class="effect-dc ${d.dc.includes('借')?'is-debit':'is-credit'}">${d.dc||'—'}</span><div><b>${d.word}</b><small>${d.kind}</small></div><div class="effect-meaning">${d.effect}${d.amt!==null?` · ${d.amt.toLocaleString()}`:''}</div></div>`).join('')}</div><div class="balance-check ${balanced?'ok':''}">${check}</div><div class="explain-hint">读分录顺序：先认科目大类 → 再把借/贷翻译成增加、减少或结转 → 最后看为什么这个业务需要这种变化。</div>`;
    entry.append(panel);
  }
- function addExplainButton(entry){
-   const head=entry.querySelector('.entry-head');if(!head||head.querySelector('.entry-explain-btn'))return;
-   const btn=document.createElement('button');btn.className='entry-explain-btn';btn.type='button';btn.textContent='解释这条分录';
-   btn.addEventListener('click',()=>explainEntry(entry));head.append(btn);
- }
- document.querySelectorAll('.entry').forEach(addExplainButton);
- // audit 脚本在 enhance.js 之后动态注入分录，用 observer 补按钮
+ // 分录解释默认直接展示，不藏在按钮后面
+ document.querySelectorAll('.entry').forEach(buildExplainPanel);
+ // audit 脚本在 enhance.js 之后动态注入分录，用 observer 补面板
  new MutationObserver(muts=>{
    muts.forEach(m=>m.addedNodes.forEach(n=>{
      if(!n||n.nodeType!==1) return;
-     if(n.classList&&n.classList.contains('entry')) addExplainButton(n);
-     if(n.querySelectorAll) n.querySelectorAll('.entry').forEach(addExplainButton);
+     if(n.classList&&n.classList.contains('entry')) buildExplainPanel(n);
+     if(n.querySelectorAll) n.querySelectorAll('.entry').forEach(buildExplainPanel);
    }));
  }).observe(document.body,{childList:true,subtree:true});
 
@@ -95,16 +93,18 @@
    r3:{result:'确认非限定性捐赠收入。仅有捐赠承诺而不满足确认条件时，本章课件明确要求不确认捐赠收入。'}
   }}
  };
+ // 判断树改为静态全展示：所有问题、分支、结论一次看完，不再点一步藏一步
  function renderDecision(){
    const data=DECISIONS[ch],anchor=document.querySelector('#why');if(!data||!anchor)return;
+   function renderNode(id){
+     const node=data.nodes[id];if(!node)return '';
+     if(node.result)return `<div class="decision-result"><span>结论</span><p>${node.result}</p></div>`;
+     return `<div class="dt-q"><span class="dt-tag">判断</span>${node.q}</div>`+
+       node.choices.map(([label,next])=>`<div class="dt-branch"><div class="dt-choice-label"><span class="dt-if">如果</span>${label}</div>${renderNode(next)}</div>`).join('');
+   }
    const sec=document.createElement('section');sec.className='decision-lab';sec.id='decision-lab';
-   sec.innerHTML=`<div class="kicker">交互判断树</div><h2>${data.title}</h2><p>${data.intro}</p><div class="decision-path"></div><div class="decision-stage"></div><button type="button" class="decision-reset" hidden>重新判断</button>`;
+   sec.innerHTML=`<div class="kicker">判断思路</div><h2>${data.title}</h2><p>${data.intro}</p><div class="dt-tree">${renderNode(data.start)}</div>`;
    anchor.insertAdjacentElement('afterend',sec);
-   const stage=sec.querySelector('.decision-stage'),path=sec.querySelector('.decision-path'),reset=sec.querySelector('.decision-reset');let trail=[];
-   function go(id){const node=data.nodes[id];if(!node)return;if(node.result){stage.innerHTML=`<div class="decision-result"><span>结论</span><p>${node.result}</p></div>`;reset.hidden=false;return}
-     stage.innerHTML=`<div class="decision-question">${node.q}</div><div class="decision-choices"></div>`;const box=stage.querySelector('.decision-choices');
-     node.choices.forEach(([label,next])=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=()=>{trail.push(label);path.innerHTML=trail.map((x,i)=>`<span>${i+1}. ${x}</span>`).join('');go(next)};box.append(b)})}
-   reset.onclick=()=>{trail=[];path.innerHTML='';reset.hidden=true;go(data.start)};go(data.start);
  }
  renderDecision();
 
