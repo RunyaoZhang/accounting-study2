@@ -37,7 +37,7 @@
   const anchor=document.querySelector('.chapter-map2')||document.querySelector('.decision-lab')||document.querySelector('#why');
   if(!anchor) return;
   const s=document.createElement('section'); s.className='audit24-core'; s.id='audit24';
-  s.innerHTML=`<div class="kicker">PDF 完整性补漏</div><h2>政府会计最核心：同一笔业务要先判断“财务口径、预算口径，还是两边都记”</h2>${blocks.length?`<div class="map2-grid">${blocks.join('')}</div>`:''}${entries.join('')}`;
+  s.innerHTML=`<div class="kicker">这些地方最容易丢分</div><h2>政府会计最核心：同一笔业务要先判断“财务口径、预算口径，还是两边都记”</h2>${blocks.length?`<div class="map2-grid">${blocks.join('')}</div>`:''}${entries.join('')}`;
   anchor.insertAdjacentElement('afterend',s);
   const label='补漏：政府会计易漏规则';
   document.querySelectorAll('.sidebar .tree, .mobile-tree .tree').forEach(tree=>{

@@ -30,7 +30,7 @@
   const anchor=document.querySelector('.chapter-map2')||document.querySelector('.decision-lab')||document.querySelector('#why');
   if(!anchor) return;
   const s=document.createElement('section'); s.className='audit23-core'; s.id='audit23';
-  s.innerHTML=`<div class="kicker">PDF 完整性补漏</div><h2>日后事项：先问“旧状况的新证据，还是日后才发生的新事情？”</h2>${blocks.length?`<div class="map2-grid">${blocks.join('')}</div>`:''}${entries.join('')}`;
+  s.innerHTML=`<div class="kicker">这些地方最容易丢分</div><h2>日后事项：先问“旧状况的新证据，还是日后才发生的新事情？”</h2>${blocks.length?`<div class="map2-grid">${blocks.join('')}</div>`:''}${entries.join('')}`;
   anchor.insertAdjacentElement('afterend',s);
   const label='补漏：日后事项易漏规则';
   document.querySelectorAll('.sidebar .tree, .mobile-tree .tree').forEach(tree=>{

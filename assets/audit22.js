@@ -20,7 +20,7 @@
   const s=document.createElement('section');
   s.className='audit22-core'; s.id='audit22';
   s.innerHTML=`
-    <div class="kicker">PDF 完整性补漏</div>
+    <div class="kicker">这些地方最容易丢分</div>
     <h2>先按“规则 / 估计 / 差错”判断，再决定追溯还是未来适用</h2>
     <div class="map2-grid">${blocks.join('')}</div>`;
   anchor.insertAdjacentElement('afterend',s);
