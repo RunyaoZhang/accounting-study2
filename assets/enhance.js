@@ -93,17 +93,24 @@
    r3:{result:'确认非限定性捐赠收入。仅有捐赠承诺而不满足确认条件时，本章课件明确要求不确认捐赠收入。'}
   }}
  };
- // 判断树改为静态全展示：所有问题、分支、结论一次看完，不再点一步藏一步
+ // 判断树改为线性编号流程：全部步骤一次展示，按第1步→第2步顺序顺读，不再嵌套
  function renderDecision(){
    const data=DECISIONS[ch],anchor=document.querySelector('#why');if(!data||!anchor)return;
-   function renderNode(id){
-     const node=data.nodes[id];if(!node)return '';
-     if(node.result)return `<div class="decision-result"><span>结论</span><p>${node.result}</p></div>`;
-     return `<div class="dt-q"><span class="dt-tag">判断</span>${node.q}</div>`+
-       node.choices.map(([label,next])=>`<div class="dt-branch"><div class="dt-choice-label"><span class="dt-if">如果</span>${label}</div>${renderNode(next)}</div>`).join('');
-   }
+   const order=[],stepOf={};
+   (function walk(id){const n=data.nodes[id];if(!n||n.result)return;stepOf[id]=order.length+1;order.push(id);n.choices.forEach(c=>walk(c[1]))})(data.start);
+   const stepHtml=order.map(id=>{
+     const n=data.nodes[id];
+     const opts=n.choices.map(([label,next])=>{
+       const t=data.nodes[next];
+       const tail=(t&&t.result)
+         ?`<div class="decision-result"><span>结论</span><p>${t.result}</p></div>`
+         :`<a class="ds-goto" href="#ds-s${stepOf[next]}">→ 进入第 ${stepOf[next]} 步</a>`;
+       return `<li><span class="ds-if">如果</span><span class="ds-cond">${label}</span>${tail}</li>`;
+     }).join('');
+     return `<div class="ds-step" id="ds-s${stepOf[id]}"><div class="ds-q"><span class="ds-num">第 ${stepOf[id]} 步</span><span>${n.q}</span></div><ul class="ds-opts">${opts}</ul></div>`;
+   }).join('');
    const sec=document.createElement('section');sec.className='decision-lab';sec.id='decision-lab';
-   sec.innerHTML=`<div class="kicker">判断思路</div><h2>${data.title}</h2><p>${data.intro}</p><div class="dt-tree">${renderNode(data.start)}</div>`;
+   sec.innerHTML=`<div class="kicker">判断思路</div><h2>${data.title}</h2><p>${data.intro}</p><div class="ds-flow">${stepHtml}</div>`;
    anchor.insertAdjacentElement('afterend',sec);
  }
  renderDecision();
